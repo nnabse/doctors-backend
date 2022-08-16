@@ -1,7 +1,5 @@
-const { Sequelize, DataTypes } = require("sequelize");
-
-const uri = "postgres://postgres:postgres@localhost:5432/doctors";
-const sequelize = new Sequelize(uri);
+const { DataTypes } = require("sequelize");
+const sequelize = require("../../db/dbConnect");
 
 const Reception = sequelize.define("Receptions", {
   date: {

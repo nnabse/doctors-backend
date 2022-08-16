@@ -1,15 +1,22 @@
-module.exports.getReceptions = (req, res) => {
+const getReceptions = (req, res) => {
   res.status(200).send("getReceptions");
 };
 
-module.exports.createReception = (req, res) => {
+const createReception = (req, res) => {
   res.status(200).send("createReception");
 };
 
-module.exports.changeReception = (req, res) => {
+const changeReception = (req, res) => {
   res.status(200).send("changeReception");
 };
 
-module.exports.deleteReception = (req, res) => {
+const deleteReception = (req, res) => {
   res.status(200).send("deleteReception");
+};
+
+module.exports = {
+  getReceptions,
+  createReception,
+  changeReception,
+  deleteReception,
 };

@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { Sequelize } = require("sequelize");
+const sequelize = require("./src/db/dbConnect");
 
 const userRoutes = require("./src/modules/routes/userRoutes");
 const receptionsRoutes = require("./src/modules/routes/receptionsRoutes");
@@ -13,10 +13,6 @@ app.use(express.json());
 
 app.use("/", userRoutes);
 app.use("/", receptionsRoutes);
-
-const uri = "postgres://postgres:postgres@localhost:5432/doctors";
-
-const sequelize = new Sequelize(uri);
 
 const connectDB = async () => {
   try {
