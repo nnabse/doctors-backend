@@ -25,6 +25,10 @@ const connectDB = async () => {
 
 connectDB();
 
+sequelize.sync({ alter: true }).then(() => {
+  console.log(`Database & tables created!`);
+});
+
 app.listen(port, () => {
   console.log("server launched on port", port);
 });

@@ -5,15 +5,17 @@ const createUser = async (req, res) => {
   if (!(login && password)) return res.status(400).send("Error! Check params.");
 
   try {
-    const user = await User.findOne({
+    const [user, created] = await User.findOrCreate({
       where: {
         login: login,
       },
+      defaults: {
+        login: login,
+        password: password,
+      },
     });
 
-    if (user) return res.status(409).send("User with this login is exists");
-
-    await User.create({ login: login, password: password });
+    if (!created) return res.status(409).send("User with this login is exists");
 
     res.status(201).send("User created");
   } catch (error) {
