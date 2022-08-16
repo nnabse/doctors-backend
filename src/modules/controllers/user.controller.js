@@ -1,8 +1,10 @@
 const User = require("../models/userModel");
+const bcrypt = require("bcrypt");
 
 const createUser = async (req, res) => {
   const { login, password } = req.body;
   if (!(login && password)) return res.status(400).send("Error! Check params.");
+  const hashedPassword = await bcrypt.hash(password, 12);
 
   try {
     const [user, created] = await User.findOrCreate({
@@ -11,7 +13,7 @@ const createUser = async (req, res) => {
       },
       defaults: {
         login: login,
-        password: password,
+        password: hashedPassword,
       },
     });
 
@@ -32,13 +34,16 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({
       where: {
         login: login,
-        password: password,
       },
     });
 
-    if (!user) return res.status(404).send("User not Found!");
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch)
+        return res.status(200).send("login/password pair is correct, login...");
+    }
 
-    res.status(200).send("User found, loginning");
+    return res.status(404).send("incorrect login or password");
   } catch (error) {
     res.status(500).send("Error", error);
   }

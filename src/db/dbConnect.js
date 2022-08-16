@@ -1,7 +1,7 @@
+const dotenv = require("dotenv");
 const { Sequelize } = require("sequelize");
+dotenv.config();
 
-const uri = "postgres://postgres:postgres@localhost:5432/doctors";
-
-const sequelize = new Sequelize(uri);
+const sequelize = new Sequelize(process.env.DATABASE_LINK);
 
 module.exports = sequelize;
