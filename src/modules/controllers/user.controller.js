@@ -1,9 +1,17 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../middleware/generateTokens");
 
 const createUser = async (req, res) => {
   const { login, password } = req.body;
-  if (!(login && password)) return res.status(400).send("Error! Check params.");
+
+  if (!(login && password)) {
+    return res.status(400).send("Error! Check params.");
+  }
+
   const hashedPassword = await bcrypt.hash(password, 12);
 
   try {
@@ -17,9 +25,13 @@ const createUser = async (req, res) => {
       },
     });
 
-    if (!created) return res.status(409).send("User with this login is exists");
+    if (!created) {
+      return res.status(409).send("User with this login is exists");
+    }
 
-    res.status(201).send("User created");
+    const accessToken = generateAccessToken({ login: login });
+    const refreshToken = generateRefreshToken({ login: login });
+    res.status(201).send({ accessToken, refreshToken });
   } catch (error) {
     res.status(500).send("Error", error);
   }
@@ -28,8 +40,10 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { login, password } = req.body;
 
-  if (!(login && password)) return res.status(400).send("Error! Check params.");
-
+  if (!(login && password)) {
+    return res.status(400).send("Error! Check params.");
+  }
+  
   try {
     const user = await User.findOne({
       where: {
@@ -39,11 +53,14 @@ const loginUser = async (req, res) => {
 
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
-      if (isMatch)
-        return res.status(200).send("login/password pair is correct, login...");
+      if (isMatch) {
+        const accessToken = generateAccessToken({ login: login });
+        const refreshToken = generateRefreshToken({ login: login });
+        return res.status(200).send({ accessToken, refreshToken });
+      }
     }
 
-    return res.status(404).send("incorrect login or password");
+    return res.status(401).send("incorrect login or password");
   } catch (error) {
     res.status(500).send("Error", error);
   }
