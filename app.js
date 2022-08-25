@@ -3,7 +3,8 @@ const cors = require("cors");
 const sequelize = require("./src/db/dbConnect");
 
 const userRoutes = require("./src/modules/routes/userRoutes");
-const receptionsRoutes = require("./src/modules/routes/receptionsRoutes");
+const receptionRoutes = require("./src/modules/routes/receptionRoutes");
+const doctorRoutes = require("./src/modules/routes/doctorRoutes");
 
 const app = express();
 const port = 8000;
@@ -12,7 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/", userRoutes);
-app.use("/", receptionsRoutes);
+app.use("/", receptionRoutes);
+app.use("/", doctorRoutes);
 
 const connectDB = async () => {
   try {

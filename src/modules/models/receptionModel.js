@@ -16,6 +16,4 @@ const Reception = sequelize.define("Receptions", {
   },
 });
 
-async () => await Reception.sync();
-
 module.exports = Reception;

@@ -1,9 +1,10 @@
-const User = require("../models/userModel");
+const { User } = require("../../db/modelsConnections");
 const bcrypt = require("bcrypt");
+
 const {
   generateAccessToken,
   generateRefreshToken,
-} = require("../middleware/generateTokens");
+} = require("../utils/generateTokens");
 
 const createUser = async (req, res) => {
   const { login, password } = req.body;
@@ -29,8 +30,11 @@ const createUser = async (req, res) => {
       return res.status(409).send("User with this login is exists");
     }
 
-    const accessToken = generateAccessToken({ login: login });
-    const refreshToken = generateRefreshToken({ login: login });
+    const userInfo = { id: user.id, login: user.login };
+
+    const accessToken = generateAccessToken(userInfo);
+    const refreshToken = generateRefreshToken(userInfo);
+
     res.status(201).send({ accessToken, refreshToken });
   } catch (error) {
     res.status(500).send("Error", error);
@@ -43,7 +47,7 @@ const loginUser = async (req, res) => {
   if (!(login && password)) {
     return res.status(400).send("Error! Check params.");
   }
-  
+
   try {
     const user = await User.findOne({
       where: {
@@ -54,15 +58,14 @@ const loginUser = async (req, res) => {
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
-        const accessToken = generateAccessToken({ login: login });
-        const refreshToken = generateRefreshToken({ login: login });
-        return res.status(200).send({ accessToken, refreshToken });
+        const accessToken = generateAccessToken({ login: login, id: user.id });
+        const refreshToken = generateRefreshToken({ login: login, id: user.id });
+        return res.status(200).send({ accessToken, refreshToken, username: login });
       }
     }
-
     return res.status(401).send("incorrect login or password");
   } catch (error) {
-    res.status(500).send("Error", error);
+    res.status(500).send(error);
   }
 };
 
