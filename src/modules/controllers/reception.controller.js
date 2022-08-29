@@ -21,13 +21,12 @@ const getReceptions = (req, res) => {
 
 const createReception = (req, res) => {
   const body = req.body;
+  if (!body.doctor || !body.doctor.id) {
+    return res.status(400).send({ message: "Error! Check params!" });
+  }
   const { date, patientName, complaints } = body;
   const doctorId = body.doctor.id;
   const { id } = req.user;
-
-  if (!doctorId) {
-    res.status(400).send({ message: "Error! Check params!" });
-  }
 
   Reception.create({
     date: date,
