@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../db/dbConnect");
 
-const Reception = sequelize.define("Receptions", {
+const Reception = sequelize.define("receptions", {
   date: {
     type: DataTypes.DATEONLY,
     allowNull: false,
@@ -15,7 +15,5 @@ const Reception = sequelize.define("Receptions", {
     allowNull: false,
   },
 });
-
-async () => await Reception.sync();
 
 module.exports = Reception;
