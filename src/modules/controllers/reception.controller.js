@@ -50,20 +50,20 @@ const changeReception = (req, res) => {
 
 const deleteReception = (req, res) => {
   const { id } = req.query;
-  try {
-    Reception.destroy({
-      where: {
-        id: id,
-      },
-    }).then((result) => {
+  Reception.destroy({
+    where: {
+      id: id,
+    },
+  })
+    .then((result) => {
       if (result) {
         return res.status(200).send({ message: "Deleted successfully!" });
       }
       return res.status(404).send({ message: "Wrong ID!" });
+    })
+    .catch((error) => {
+      return res.status(500).send({ error: error, message: "Internal error!" });
     });
-  } catch (error) {
-    return res.status(500).send({ error: error, message: "Internal error!" });
-  }
 };
 
 module.exports = {
