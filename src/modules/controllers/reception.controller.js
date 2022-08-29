@@ -25,6 +25,10 @@ const createReception = (req, res) => {
   const doctorId = body.doctor.id;
   const { id } = req.user;
 
+  if (!doctorId) {
+    res.status(400).send({ message: "Error! Check params!" });
+  }
+
   Reception.create({
     date: date,
     patientName: patientName,

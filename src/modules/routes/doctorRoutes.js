@@ -7,6 +7,6 @@ const {
   getDoctors,
 } = require("../controllers/doctor.controller");
 
-router.get("/doctor", isAuthenticate, getDoctors);
+router.get("/", isAuthenticate, getDoctors);
 
 module.exports = router;

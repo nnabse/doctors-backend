@@ -17,8 +17,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/", userRoutes);
-app.use("/", receptionRoutes);
-app.use("/", doctorRoutes);
+app.use("/receptions", receptionRoutes);
+app.use("/doctor", doctorRoutes);
 
 const connectDB = async () => {
   try {

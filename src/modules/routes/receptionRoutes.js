@@ -10,9 +10,9 @@ const {
   deleteReception,
 } = require("../controllers/reception.controller");
 
-router.get("/receptions", isAuthenticate, getReceptions);
-router.post("/receptions", isAuthenticate, createReception);
-router.patch("/receptions", changeReception);
-router.delete("/receptions", isAuthenticate, deleteReception);
+router.get("/", isAuthenticate, getReceptions);
+router.post("/", isAuthenticate, createReception);
+router.patch("/", changeReception);
+router.delete("/", isAuthenticate, deleteReception);
 
 module.exports = router;
