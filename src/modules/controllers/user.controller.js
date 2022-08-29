@@ -27,7 +27,9 @@ const createUser = async (req, res) => {
     });
 
     if (!created) {
-      return res.status(409).send("User with this login is exists");
+      return res
+        .status(409)
+        .send({ message: "User with this login is exists" });
     }
 
     const userInfo = { id: user.id, login: user.login };
@@ -59,11 +61,16 @@ const loginUser = async (req, res) => {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
         const accessToken = generateAccessToken({ login: login, id: user.id });
-        const refreshToken = generateRefreshToken({ login: login, id: user.id });
-        return res.status(200).send({ accessToken, refreshToken, username: login });
+        const refreshToken = generateRefreshToken({
+          login: login,
+          id: user.id,
+        });
+        return res
+          .status(200)
+          .send({ accessToken, refreshToken, username: login });
       }
     }
-    return res.status(401).send("incorrect login or password");
+    return res.status(401).send({ message: "incorrect login or password" });
   } catch (error) {
     res.status(500).send(error);
   }

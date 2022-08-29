@@ -4,7 +4,7 @@ const getReceptions = (req, res) => {
   const { id } = req.user;
   Reception.findAll({
     where: {
-      UserId: id,
+      userId: id,
     },
     include: {
       model: Doctor,
@@ -12,23 +12,25 @@ const getReceptions = (req, res) => {
     },
   }).then((result) => {
     result.map((elem) => {
-      const { fullName } = elem.Doctor;
-      elem.dataValues.Doctor.fullName = fullName;
+      const { fullName } = elem.doctor;
+      elem.dataValues.doctor.fullName = fullName;
     });
     return res.status(200).send(result);
   });
 };
 
 const createReception = (req, res) => {
-  const { date, patientName, complaints, DoctorId } = req.query;
+  const body = req.body;
+  const { date, patientName, complaints } = body;
+  const doctorId = body.doctor.id;
   const { id } = req.user;
 
   Reception.create({
     date: date,
     patientName: patientName,
     complaints: complaints,
-    DoctorId: DoctorId,
-    UserId: id,
+    doctorId: doctorId,
+    userId: id,
   })
     .then((result) => {
       return res.status(200).send(result);

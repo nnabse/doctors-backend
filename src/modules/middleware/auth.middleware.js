@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 
 const isAuthenticate = (req, res, next) => {
-  if (!req.query.accessToken) {
-    return res.status(400).send("Error! Check params!");
+  if (!req.headers.accesstoken) {
+    return res.status(400).send({ message: "Error! Check params!" });
   }
-  const { accessToken } = req.query;
-  if (accessToken) {
+  const { accesstoken } = req.headers;
+  if (accesstoken) {
     try {
-      const userInfo = jwt.verify(accessToken, process.env.SECRET);
+      const userInfo = jwt.verify(accesstoken, process.env.SECRET); 
       req.user = userInfo;
       next();
     } catch (error) {
