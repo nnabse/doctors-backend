@@ -9,7 +9,6 @@ const getReceptions = async (req, res) => {
       },
       include: {
         model: Doctor,
-        attributes: ["fullName"],
       },
     });
 
@@ -19,9 +18,9 @@ const getReceptions = async (req, res) => {
     });
     return res.status(200).send(receptionsList);
   } catch (error) {
-    return res.status(500).send({ error: error });
+    return res.status(500).send({ error });
   }
-}; 
+};
 
 const createReception = async (req, res) => {
   const body = req.body;
@@ -46,8 +45,29 @@ const createReception = async (req, res) => {
   }
 };
 
-const changeReception = (req, res) => {
-  res.status(200).send("changeReception");
+const changeReception = async (req, res) => {
+  const { date, patientName, complaints, doctor } = req.body;
+  const { id } = req.query;
+
+  try {
+    await Reception.update(
+      {
+        date,
+        patientName,
+        complaints,
+        doctorId: doctor.id,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    return res.status(200).send({ message: "Reception successfully updated!" });
+  } catch (error) {
+    return res.status(500).send({ error });
+  }
 };
 
 const deleteReception = async (req, res) => {
@@ -55,12 +75,12 @@ const deleteReception = async (req, res) => {
   try {
     await Reception.destroy({
       where: {
-        id: id,
+        id,
       },
     });
     return res.status(200).send({ message: "Deleted successfully!" });
   } catch (error) {
-    return res.status(500).send({ error: error, message: "Internal error!" });
+    return res.status(500).send({ error, message: "Internal error!" });
   }
 };
 
