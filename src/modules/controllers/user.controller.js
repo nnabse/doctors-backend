@@ -1,5 +1,6 @@
 const { User } = require("../../db/modelsConnections");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const {
   generateAccessToken,
@@ -70,13 +71,34 @@ const loginUser = async (req, res) => {
           .send({ accessToken, refreshToken, username: login });
       }
     }
-    return res.status(401).send({ message: "incorrect login or password" });
+    return res.status(400).send({ message: "incorrect login or password" });
   } catch (error) {
     res.status(500).send(error);
+  }
+};
+
+const updateTokens = (req, res) => {
+  if (!req.headers.refreshtoken) {
+    return res.status(400).send("Error! Check params!");
+  }
+
+  try {
+    const refreshToken = req.headers.refreshtoken;
+    const userInfo = jwt.verify(refreshToken, process.env.SECRET);
+
+    if (userInfo) {
+      const { login, id } = userInfo;
+      const accessToken = generateAccessToken({ login, id });
+      const refreshToken = generateRefreshToken({ login, id });
+      return res.status(200).send({ accessToken, refreshToken });
+    }
+  } catch (error) {
+    return res.status(500).send({ error });
   }
 };
 
 module.exports = {
   createUser,
   loginUser,
+  updateTokens,
 };

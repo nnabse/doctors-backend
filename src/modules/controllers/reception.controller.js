@@ -1,27 +1,50 @@
 const { Reception, Doctor } = require("../../db/modelsConnections");
+const { Op } = require("sequelize");
 
 const getReceptions = async (req, res) => {
   const { id } = req.user;
+  let { startDate, endDate } = req.query;
+  let { sortOption, sortMethod } = req.query;
+
+  if (!sortOption?.length && !sortMethod?.length) {
+    sortOption = "date";
+    sortMethod = "asc";
+  }
+
+  let searchOptions = {
+    userId: id,
+    date: { [Op.between]: [startDate, endDate] },
+  };
+
+  let sortOrder = [[sortOption, sortMethod]];
+
+  if (!startDate?.length && !endDate?.length) {
+    searchOptions = {
+      userId: id,
+    };
+  }
+
+  if (sortOption === "doctor") {
+    sortOrder = [[Doctor, "fullName", sortMethod]];
+  }
+
   try {
     const receptionsList = await Reception.findAll({
-      where: {
-        userId: id,
-      },
+      where: searchOptions,
       include: {
         model: Doctor,
-        attributes: ["fullName"],
       },
+      order: sortOrder,
     });
-
-    receptionsList.map((elem) => {
+    receptionsList.forEach((elem) => {
       const { fullName } = elem.doctor;
       elem.dataValues.doctor.fullName = fullName;
     });
     return res.status(200).send(receptionsList);
   } catch (error) {
-    return res.status(500).send({ error: error });
+    return res.status(500).send({ error });
   }
-}; 
+};
 
 const createReception = async (req, res) => {
   const body = req.body;
@@ -46,8 +69,29 @@ const createReception = async (req, res) => {
   }
 };
 
-const changeReception = (req, res) => {
-  res.status(200).send("changeReception");
+const changeReception = async (req, res) => {
+  const { date, patientName, complaints, doctor } = req.body;
+  const { id } = req.query;
+
+  try {
+    await Reception.update(
+      {
+        date,
+        patientName,
+        complaints,
+        doctorId: doctor.id,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    return res.status(200).send({ message: "Reception successfully updated!" });
+  } catch (error) {
+    return res.status(500).send({ error });
+  }
 };
 
 const deleteReception = async (req, res) => {
@@ -55,12 +99,12 @@ const deleteReception = async (req, res) => {
   try {
     await Reception.destroy({
       where: {
-        id: id,
+        id,
       },
     });
     return res.status(200).send({ message: "Deleted successfully!" });
   } catch (error) {
-    return res.status(500).send({ error: error, message: "Internal error!" });
+    return res.status(500).send({ error, message: "Internal error!" });
   }
 };
 
