@@ -1,17 +1,53 @@
 const { Reception, Doctor } = require("../../db/modelsConnections");
+const { Op } = require("sequelize");
 
 const getReceptions = async (req, res) => {
   const { id } = req.user;
+  let { startDate, endDate } = req.query;
+  let { sortOption, sortMethod } = req.query;
+
+  if (!sortOption && !sortMethod) {
+    sortOption = "date";
+    sortMethod = "asc";
+  }
+  if (!startDate && !endDate) {
+    startDate = "1111-01-01";
+    endDate = "9999-01-01";
+  }
+
+  if (sortOption === "doctor") {
+    try {
+      const receptionsList = await Reception.findAll({
+        where: {
+          userId: id,
+          date: { [Op.between]: [startDate, endDate] },
+        },
+        include: {
+          model: Doctor,
+        },
+        order: [[Doctor, "fullName", sortMethod]],
+      });
+      receptionsList.map((elem) => {
+        const { fullName } = elem.doctor;
+        elem.dataValues.doctor.fullName = fullName;
+      });
+      return res.status(200).send(receptionsList);
+    } catch (error) {
+      return res.status(500).send({ error });
+    }
+  }
+
   try {
     const receptionsList = await Reception.findAll({
       where: {
+        date: { [Op.between]: [startDate, endDate] },
         userId: id,
       },
       include: {
         model: Doctor,
       },
+      order: [[sortOption, sortMethod]],
     });
-
     receptionsList.map((elem) => {
       const { fullName } = elem.doctor;
       elem.dataValues.doctor.fullName = fullName;
