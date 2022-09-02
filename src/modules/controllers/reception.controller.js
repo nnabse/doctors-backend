@@ -6,47 +6,35 @@ const getReceptions = async (req, res) => {
   let { startDate, endDate } = req.query;
   let { sortOption, sortMethod } = req.query;
 
-  if (!sortOption && !sortMethod) {
+  if (!sortOption?.length && !sortMethod?.length) {
     sortOption = "date";
     sortMethod = "asc";
   }
-  if (!startDate && !endDate) {
-    startDate = "1111-01-01";
-    endDate = "9999-01-01";
+
+  let searchOptions = {
+    userId: id,
+    date: { [Op.between]: [startDate, endDate] },
+  };
+
+  let sortOrder = [[sortOption, sortMethod]];
+
+  if (!startDate?.length && !endDate?.length) {
+    searchOptions = {
+      userId: id,
+    };
   }
 
   if (sortOption === "doctor") {
-    try {
-      const receptionsList = await Reception.findAll({
-        where: {
-          userId: id,
-          date: { [Op.between]: [startDate, endDate] },
-        },
-        include: {
-          model: Doctor,
-        },
-        order: [[Doctor, "fullName", sortMethod]],
-      });
-      receptionsList.map((elem) => {
-        const { fullName } = elem.doctor;
-        elem.dataValues.doctor.fullName = fullName;
-      });
-      return res.status(200).send(receptionsList);
-    } catch (error) {
-      return res.status(500).send({ error });
-    }
+    sortOrder = [[Doctor, "fullName", sortMethod]];
   }
 
   try {
     const receptionsList = await Reception.findAll({
-      where: {
-        date: { [Op.between]: [startDate, endDate] },
-        userId: id,
-      },
+      where: searchOptions,
       include: {
         model: Doctor,
       },
-      order: [[sortOption, sortMethod]],
+      order: sortOrder,
     });
     receptionsList.map((elem) => {
       const { fullName } = elem.doctor;
