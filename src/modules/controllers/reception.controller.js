@@ -36,7 +36,7 @@ const getReceptions = async (req, res) => {
       },
       order: sortOrder,
     });
-    receptionsList.map((elem) => {
+    receptionsList.forEach((elem) => {
       const { fullName } = elem.doctor;
       elem.dataValues.doctor.fullName = fullName;
     });
